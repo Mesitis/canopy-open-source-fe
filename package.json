@@ -1,6 +1,6 @@
 {
   "name": "canopy-components",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "build/index.js",
   "module": "build/index.es.js",
   "files": [
@@ -11,6 +11,11 @@
     "storybook": "start-storybook -p 6006 --no-manager-cache",
     "build-storybook": "build-storybook",
     "prepublishOnly": "npm run build"
+  },
+  "homepage": "https://github.com/Mesitis/canopy-open-source-fe",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mesitis/canopy-open-source-fe"
   },
   "eslintConfig": {
     "extends": [
