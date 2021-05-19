@@ -318,7 +318,7 @@ const columnDef: ColumnDefinition<TableLayoutState> = {
         );
         return (
           <Flex
-            width={"full"}
+            width={"100%"}
             textOverflow="ellipsis"
             whiteSpace="nowrap"
             overflow="hidden"
@@ -407,7 +407,7 @@ const columnDef: ColumnDefinition<TableLayoutState> = {
                 )
               ) : null}
             </Box>
-            <Box width="full">
+            <Box width="100%">
               <Tooltip
                 aria-label={row.original[key]}
                 label={row.original[key]}
@@ -529,13 +529,16 @@ const columnDef: ColumnDefinition<TableLayoutState> = {
       },
     };
   },
-  actions: ({
+  custom: ({
     column: {
+      key,
       actions,
       showOnSubTable = false,
       canReorder = true,
       canSort = false,
       canResize = true,
+      width = 100,
+      customCell,
     },
     setLayoutState,
   }: {
@@ -543,54 +546,18 @@ const columnDef: ColumnDefinition<TableLayoutState> = {
     setLayoutState?: React.Dispatch<SetStateAction<TableLayoutState>>;
   }) => {
     return {
-      Header: "actions",
+      Header: key,
       accessor: "actions",
       id: "actions",
       align: "center",
-      width: 100,
+      width: width,
       canReorder,
       canSort,
       canResize,
+      customCell,
       Cell: ({ row }) => {
         if (showOnSubTable || row.depth === 0) {
-          return (
-            <Flex justifyContent="center">
-              {actions
-                ? actions.map(({ name, path }: any) => {
-                    const action: typeof actionsDetails[string] =
-                      actionsDetails[name];
-                    return (
-                      <></>
-                      // <IconButton
-                      //   variant="ghost"
-                      //   key={name}
-                      //   aria-label={name}
-                      //   Icon={action.icon}
-                      //   onClick={() =>
-                      //     action.onAction(row, path, setLayoutState)
-                      //   }
-                      //   color="#009444"
-                      //   _focus={{
-                      //     border: "0px",
-                      //     outline: "none",
-                      //     backgroundColor: "transparent",
-                      //   }}
-                      //   _active={{
-                      //     border: "0px",
-                      //     outline: "none",
-                      //     backgroundColor: "transparent",
-                      //   }}
-                      //   _hover={{
-                      //     border: "0px",
-                      //     outline: "none",
-                      //     backgroundColor: "transparent",
-                      //   }}
-                      // />
-                    );
-                  })
-                : ""}
-            </Flex>
-          );
+          return customCell();
         }
         return null;
       },

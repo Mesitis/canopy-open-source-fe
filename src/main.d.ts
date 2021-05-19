@@ -50,6 +50,7 @@ interface PropTableColumn extends GlobalProps {
   selectedByDefaultOn?: Array<"mobile" | "tablet" | "desktop">;
   headerTextVariables?: Array<Record<string, string>>;
   sticky?: string;
+  customCell?: any;
 }
 
 type TableColumn = {
