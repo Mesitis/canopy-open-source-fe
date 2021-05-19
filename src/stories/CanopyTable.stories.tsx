@@ -167,7 +167,7 @@ const columns = [
     canSort: true,
     width: 100,
     selectedByDefaultOn: ["desktop", "mobile", "tablet"],
-    customCell: () => {
+    customCell: ({ row, rows }) => {
       return (
         <Button
           variant="contained"

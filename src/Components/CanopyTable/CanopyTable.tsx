@@ -481,13 +481,6 @@ function CanopyTable(
       manualSortBy: true,
       paginateExpandedRows: false,
       pageCount: pageMeta?.pageCount,
-      // getSubRows: React.useMemo(
-      //     () => (originalRow: object, relativeIndex: number) => {
-      //         console.log(originalRow, relativeIndex);
-      //         return [];
-      //     },
-      //     []
-      // ),
       useControlledState: (state) => {
         return React.useMemo(() => {
           const newState = {
@@ -511,9 +504,6 @@ function CanopyTable(
     usePagination,
     useSticky
   );
-
-  console.log(JSON.stringify(data), "visibleColumns");
-
   useEffect(() => {
     if (
       //ts-ignore

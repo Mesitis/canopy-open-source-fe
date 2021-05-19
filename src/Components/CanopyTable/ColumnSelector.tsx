@@ -269,7 +269,6 @@ function ColumnSelector({
               >
                 <VStack align="flex-start">
                   {allColumns.map((_column) => {
-                    console.log(_column);
                     return (
                       <>
                         {!_column.hasOwnProperty("sticky") && (

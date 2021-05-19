@@ -555,9 +555,9 @@ const columnDef: ColumnDefinition<TableLayoutState> = {
       canSort,
       canResize,
       customCell,
-      Cell: ({ row }) => {
+      Cell: ({ row, rows }) => {
         if (showOnSubTable || row.depth === 0) {
-          return customCell();
+          return customCell({ row, rows });
         }
         return null;
       },
