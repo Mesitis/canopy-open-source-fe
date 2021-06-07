@@ -1,11 +1,12 @@
 {
   "name": "canopy-components",
-  "version": "1.0.2",
+  "version": "1.9.0",
   "main": "build/index.js",
   "module": "build/index.es.js",
   "files": [
     "build"
   ],
+  "license": "Apache-2.0",
   "scripts": {
     "build": "rollup -c",
     "storybook": "start-storybook -p 6006 --no-manager-cache",
