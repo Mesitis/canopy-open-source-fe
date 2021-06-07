@@ -13,86 +13,90 @@
 
 #### Install
 
-> npm i canopy-components --save
+``` npm i canopy-components --save```
 
 #### Import
 
-> Import { CanopyTable } from "canopy-components";
+```Import { CanopyTable } from "canopy-components";```
 
 #### API
 
 - **title**: Title to be displayed on the table
-  _ Type : String
-  _ Required : _TRUE_
+  * Type : ```String```
+  * Required : ```TRUE```
 - **dataKey**: Key to access data passed into table  
-   _ Type : String
-  _ Required : _TRUE_
-- **dataLoad**: Data to be displayed on the table \* Type : Array [ type:Object ]
-- Object Specification > data: T;
-  > loading: boolean;
-  > error: { message: string };
-  > meta: Record<string, unknown>;
-- Required : _TRUE_
-- **columns**: Columns to be displayed on the table
-- Type : Array [ type:Object ]
-- Object Specification
+   * Type :``` String```
+  * Required : ``` TRUE```
+- **dataLoad**: Data to be displayed on the table 
+    * Type :``` Array [ type:Object ]```
+    * Required :``` TRUE```
+``` Object Specification ```
+```
+    data: [];
+  loading: boolean;
+  error: { message: string };
+  meta: Record<string, unknown>;
+  ```
+- Required : ```TRUE```
 
-  > key: string;
-  > headerText?: string;
-  > type: string;
-  > otherKeys?: Array<string>;
-  > colSpan?: number;
-  > expandRow?: boolean;
-  > canReorder?: boolean;
-  > canResize?: boolean;
-  > canSort?: boolean;
-  > actions?: Array<Record<string, string>>;
-  > subTableColumns?: Record<string, string>;
-  > width?: number;
-  > align?: "center" | "left" | "right";
-  > maxWidth?: number;
-  > showOnSubTable?: boolean;
-  > selectedByDefaultOn?: Array<"mobile" | "tablet" | "desktop">;
-  > headerTextVariables?: Array<Record<string, string>>;
-  > sticky?: string;
-  > customCell?: any;
+ **columns**: Columns to be displayed on the table
+* Type : ```Array [ type:Object ]```
+* Required : ```TRUE```
+ ``` Object Specification```
+```
+  key: string;
+  headerText?: string;
+   type: string;
+  otherKeys?: Array<string>;
+  colSpan?: number;
+  expandRow?: boolean;
+  canReorder?: boolean;
+  canResize?: boolean;
+  canSort?: boolean;
+  actions?: Array<Record<string, string>>;
+  subTableColumns?: Record<string, string>;
+  width?: number;
+  align?: "center" | "left" | "right";
+  maxWidth?: number;
+  showOnSubTable?: boolean;
+  selectedByDefaultOn?: Array<"mobile" | "tablet" | "desktop">;
+  headerTextVariables?: Array<Record<string, string>>;
+  sticky?: string;
+  customCell?: any;
+```
 
-- Required : _TRUE_
+    
   **showSearchOn**: To add search on the table  
-   _ Type : ["desktop", "tablet", "mobile"] Or []
-  _ Required : _FALSE_
+   * Type : ```["desktop", "tablet", "mobile"] Or []```
+  * Required :``` FALSE```
 
 **showColumnSelectorOn**: To add colum selectors on the table  
- _ Type : ["desktop", "tablet", "mobile"] Or []
-_ Required : _FALSE_
+  * Type :``` ["desktop", "tablet", "mobile"] Or []```
+  * Required : ```FALSE```
 
 **showPagination**: To enable and disable pagination on table  
- _ Type : Boolean
-_ Required : _FALSE_
+* Type : ``` Boolean```
+* Required : ``` FALSE```
 
 **per_page**: Data to be displayed per page on the table  
- _ Type : Number default 20
-_ Required : _FALSE_
-
-**per_page**: Data to be displayed per page on the table  
- _ Type : Number default 20
-_ Required : _FALSE_
+* Type : ``` Number default 20 ```
+* Required : ```_FALSE_```
 
 **customTablePager**: To add custom pagination Component
-_ Type : React.ReactNode
-_ Required : _FALSE_
+* Type : ```React.ReactNode```
+* Required :``` _FALSE_```
 
 **customTableFilter**: To add custom Filter Component
-_ Type : React.ReactNode
-_ Required : _FALSE_
+* Type : ```React.ReactNode```
+* Required :``` FALSE```
 
 **clientSideSearch**: To add enable and disable client side search
-_ Type : Boolean
-_ Required : _FALSE_
+* Type : ```Boolean```
+* Required : ```FALSE```
 
 **clientSideSort**: To add enable and disable client side sorting
-_ Type : Boolean
-_ Required : _FALSE_
+* Type :``` Boolean```
+* Required :``` FALSE```
 
 #### License
 
