@@ -46,7 +46,7 @@ const IconButton = React.forwardRef(function ({
       _active={{ border: "0px" }}
       {...props}
     >
-      <Icon width={width} height={height} />
+      <Icon fontSize="18px" width={width} height={height} />
     </Button>
   );
 });

@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import { Box, Flex, SlideFade, Stack, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  SlideFade,
+  Stack,
+  useDisclosure,
+  Button,
+} from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import cloneDeep from "lodash-es/cloneDeep";
 import React, { useEffect, useState } from "react";
@@ -33,7 +40,6 @@ import { useSticky } from "react-table-sticky";
 import { useCurrentColors } from "../../hooks/UseCurrentColors/UseCurrentColors";
 import { getDeviceType } from "../../hooks/UseResponsive/UseResponsive";
 import ErrorBox from "../ErrorBox/ErrorBox";
-import SpinnerOverlay from "../SpinnerOverlay/SpinnerOverlay";
 import CanopySubTable from "./CanopySubTable";
 import { CanopyTableHead } from "./CanopyTableHead";
 import CanopyTablePager from "./CanopyTablePager";
@@ -42,6 +48,10 @@ import ColumnDefinition from "./ColumnDefinitions";
 import ColumnSelector from "./ColumnSelector";
 import { GrDrag, GrFormDown } from "react-icons/gr";
 import { AiOutlineLine } from "react-icons/ai";
+import { clientSort } from "./Utils";
+import TableSkeleton from "./TableSkeleton";
+import { isEqual } from "lodash";
+
 export interface CanopyTableProps<TData, L>
   extends TAYFAElementProps<TData, Record<string, unknown>, L> {
   columns: Array<PropTableColumn>;
@@ -58,13 +68,22 @@ export interface CanopyTableProps<TData, L>
   childRowsApi: string | null;
   customTablePager?: React.ReactNode;
   customTableFilter?: React.ReactNode;
-  serverSideSearch?: boolean;
+  clientSideSearch?: boolean;
   downloadAllData?: boolean;
   downloadCurrentData?: boolean;
   meta?: Record<string, string>;
   requiredQueryFields?: string[];
   filterType?: string;
+  clientSideSort?: boolean;
   filterApi?: string;
+  clientSideSortParentRows?: boolean;
+  globalProps: any;
+}
+
+interface CustomTableProps {
+  tableResizerBg: string;
+  tableResizingActiveBg: string;
+  tableBackGroundColor: string;
 }
 
 interface CustomTableProps {
@@ -224,6 +243,7 @@ function CanopyTable(
     actionBar = true,
     dataLoad,
     columns,
+    globalProps,
     layoutState,
     setLayoutState,
     showSearchOn = ["desktop", "tablet", "mobile"],
@@ -236,17 +256,18 @@ function CanopyTable(
     children,
     customTablePager,
     customTableFilter,
-    serverSideSearch = true,
+    clientSideSearch = false,
     downloadAllData = true,
     downloadCurrentData = true,
     meta,
     requiredQueryFields,
     filterType,
+    clientSideSort = false,
     filterApi,
+    clientSideSortParentRows = false,
   } = props;
   const currentColors = useCurrentColors();
   const { isOpen } = useDisclosure();
-
   const [data, setData] = useState<Array<any>>([]);
   const [colReorderStart, setColReorderStart] = useState("");
   const [colReorderEnd, setColReorderEnd] = useState("");
@@ -269,10 +290,12 @@ function CanopyTable(
   const [visibleColumns, setVisibleColumns] = useState<Array<TableColumn>>([]);
   const [isDataExists, setIsDataExists] = useState<boolean>(false);
   const [previousState, setPreviousState] = useState({});
+  const [expandedRows, setExpandedRows] = useState<string[]>([]);
+  const [resizedRow, setResizedRow] = useState({});
   const deviceType = getDeviceType();
 
   const onSearch = (searchKeyword: string) => {
-    if (serverSideSearch) {
+    if (!clientSideSearch) {
       setLayoutState((layoutState) => {
         return { ...layoutState, keyword: searchKeyword };
       });
@@ -326,10 +349,21 @@ function CanopyTable(
     }
   };
 
-  const mapValuesToSubRows = (data: any): any => {
+  const mapValuesToSubRows = ({ data, sortOrder, key }: any): any => {
+    let SortRows: any = [];
     if (Array.isArray(data)) {
+      if (clientSideSort && key) {
+        SortRows = data.sort(clientSort(key, sortOrder));
+        return SortRows.map((item: any) => {
+          return mapValuesToSubRows({
+            data: item,
+            sortOrder,
+            key,
+          });
+        });
+      }
       return data.map((item) => {
-        return mapValuesToSubRows(item);
+        return mapValuesToSubRows({ data: item });
       });
     } else if (typeof data === "object") {
       if (data.hasOwnProperty("values") && data.values) {
@@ -337,20 +371,26 @@ function CanopyTable(
         delete data.values;
       }
       if (data.hasOwnProperty("subRows")) {
-        data.subRows = mapValuesToSubRows(data.subRows);
+        if (clientSideSort && key) {
+          data.subRows = mapValuesToSubRows({
+            data: data.subRows,
+            sortOrder,
+            key,
+          });
+        } else data.subRows = mapValuesToSubRows({ data: data.subRows });
       }
       return data;
     }
     return data;
   };
 
-  // useEffect(() => {
-  //   per_page
-  //     ? setLayoutState((layoutState) => {
-  //         return { ...layoutState, per_page: per_page, page: 1 };
-  //       })
-  //     : null;
-  // }, [per_page]);
+  useEffect(() => {
+    per_page
+      ? setLayoutState((layoutState) => {
+          return { ...layoutState, per_page: per_page, page: 1 };
+        })
+      : null;
+  }, [per_page]);
 
   useEffect(() => {
     let data = [];
@@ -359,14 +399,13 @@ function CanopyTable(
     } else if (dataLoad?.data && Array.isArray(dataLoad?.data)) {
       data = dataLoad.data;
     }
-    setData(mapValuesToSubRows(data));
+    setData(mapValuesToSubRows({ data }));
   }, [dataLoad]);
 
   useEffect(() => {
-    let allColumns: Array<TableColumn> = [];
-    if (columns?.length) {
-      //@ts-ignore
-      allColumns = columns.map((column, index) => {
+    let _allColumns: Array<TableColumn> = [];
+    if (columns?.length && allColumns.length === 0 && data.length > 0) {
+      _allColumns = columns.map((column, index) => {
         const headerTextVariables: Record<string, string> = {};
 
         column.headerTextVariables?.forEach(({ key, value }) => {
@@ -376,18 +415,37 @@ function CanopyTable(
         return {
           ...ColumnDefinition[column.type]({
             column,
+            //   globalProps,
             setLayoutState,
             currentColors,
             columns,
           }),
-          visible: column.selectedByDefaultOn?.includes("desktop"),
+          //@ts-ignore
+          visible: column.selectedByDefaultOn?.includes(deviceType),
           headerText: column.headerText,
-          headerTextVariables,
         };
       });
       //@ts-ignore
-      // allColumns.length > 0 ? (allColumns[0].sticky = "left") : "";
-      setAllColumns(allColumns);
+      _allColumns.length > 0 ? (_allColumns[0].sticky = "left") : "";
+      setAllColumns(_allColumns);
+    }
+    const _expanededState = Object.keys(state.expanded);
+    if (
+      _expanededState.length !== 0 &&
+      !isEqual(_expanededState, expandedRows)
+    ) {
+      setExpandedRows(_expanededState);
+      page.map((_page) => {
+        if (_expanededState.includes(_page.id)) {
+          _page?.toggleRowExpanded();
+        }
+      });
+    } else {
+      page.map((_page) => {
+        if (expandedRows.includes(_page.id)) {
+          _page?.toggleRowExpanded();
+        }
+      });
     }
   }, [columns, data]);
 
@@ -398,6 +456,7 @@ function CanopyTable(
         return {
           ...ColumnDefinition["text"]({
             column: { key, type: "text" },
+            //   globalProps,
           }),
           visible: true,
         };
@@ -408,6 +467,7 @@ function CanopyTable(
 
   useEffect(() => {
     const _allColumns = cloneDeep(allColumns);
+
     if (visibleColumns?.length) {
       let _visibleColumns = _allColumns.filter((column) => {
         return Boolean(
@@ -433,6 +493,7 @@ function CanopyTable(
           return _col;
         }
       });
+
       setVisibleColumns(_visibleColumns);
     }
   }, [allColumns]);
@@ -468,7 +529,6 @@ function CanopyTable(
   } = useTable(
     {
       columns: visibleColumns,
-
       data,
       // filterTypes,
       globalFilter,
@@ -481,6 +541,13 @@ function CanopyTable(
       manualSortBy: true,
       paginateExpandedRows: false,
       pageCount: pageMeta?.pageCount,
+      // getSubRows: React.useMemo(
+      //     () => (originalRow: object, relativeIndex: number) => {
+      //         console.log(originalRow, relativeIndex);
+      //         return [];
+      //     },
+      //     []
+      // ),
       useControlledState: (state) => {
         return React.useMemo(() => {
           const newState = {
@@ -525,22 +592,54 @@ function CanopyTable(
   }, [dataLoad.data, data]);
 
   useEffect(() => {
-    if (state.sortBy && state.sortBy?.length) {
-      setLayoutState((layoutState) => {
-        return {
-          ...layoutState,
-          sortColumn: state.sortBy?.[0].id,
-          sortDirection: state.sortBy?.[0].desc ? "desc" : "asc",
-        };
-      });
+    if (
+      clientSideSort &&
+      state.sortBy &&
+      state.sortBy?.length &&
+      !clientSideSortParentRows
+    ) {
+      if (dataLoad?.data && Array.isArray(dataLoad?.data)) {
+        setExpandedRows([]);
+        const key = state.sortBy?.[0]?.id;
+        const sortOrder = state.sortBy?.[0]?.desc;
+        dataLoad.data.map((_parent: any) => {
+          _parent.subRows = _parent.subRows.sort(clientSort(key, sortOrder));
+        });
+        setData(mapValuesToSubRows({ data: dataLoad.data }));
+      }
+    } else if (
+      clientSideSort &&
+      clientSideSortParentRows &&
+      state.sortBy &&
+      state.sortBy?.length
+    ) {
+      let data = [];
+      const key = state.sortBy?.[0]?.id;
+      const sortOrder = state.sortBy?.[0]?.desc;
+      if (dataKey) {
+        data = dataLoad.data[dataKey].sort(clientSort(key, sortOrder));
+      } else {
+        data = dataLoad.data.sort(clientSort(key, sortOrder));
+      }
+      setData(mapValuesToSubRows({ data, sortOrder, key }));
     } else {
-      setLayoutState((layoutState) => {
-        return {
-          ...layoutState,
-          sortColumn: "",
-          sortDirection: "",
-        };
-      });
+      if (state.sortBy && state.sortBy?.length) {
+        setLayoutState((layoutState) => {
+          return {
+            ...layoutState,
+            sortColumn: state.sortBy?.[0].id,
+            sortDirection: state.sortBy?.[0].desc ? "desc" : "asc",
+          };
+        });
+      } else {
+        setLayoutState((layoutState) => {
+          return {
+            ...layoutState,
+            sortColumn: "",
+            sortDirection: "",
+          };
+        });
+      }
     }
   }, [state?.sortBy]);
 
@@ -574,24 +673,16 @@ function CanopyTable(
   }, [state?.columnOrder]);
 
   if (dataLoad?.loading) {
-    return (
-      <SpinnerOverlay
-        zIndex="inherit"
-        position="relative"
-        mt="30px"
-        text={"loading"}
-        height="35vh"
-        rounded="md"
-        boxShadow={`0px 0px 2px ${currentColors.boxShadow}`}
-      ></SpinnerOverlay>
-    );
+    return <TableSkeleton></TableSkeleton>;
   }
   const onApplyMultiLevelFilter = (selection: Record<string, any>) => {
     setLayoutState((layoutState: any) => {
       const _returningObject = { ...layoutState };
       Object.keys(selection).map((_key) => {
         _returningObject[_key] =
-          selection[_key].length > 0 ? selection[_key].join(",") : "";
+          selection[_key].length > 0
+            ? escape(JSON.stringify(selection[_key]))
+            : "";
       });
       return _returningObject;
     });
@@ -621,108 +712,87 @@ function CanopyTable(
             >
               <Box width="100%">
                 {/* <Tag
-                                    size="sm"
-                                    borderRadius="full"
-                                    variant="solid"
-                                    mr="8px"
-                                    bg={currentColors.tableTagBg}
-                                    color={currentColors.tableTagText}>
-                                    <TagCloseButton
-                                        onClick={() =>
-                                            setLayoutState((layoutState) => {
-                                                return {
-                                                    ...layoutState,
-                                                    keyword: '',
-                                                };
-                                            })
-                                        }
-                                        mr="4px"
-                                    />
-                                    <TagLabel fontWeight="bold">
-                                        {layoutState.keyword}
-                                    </TagLabel>
-                                </Tag> */}
+                                  size="sm"
+                                  borderRadius="full"
+                                  variant="solid"
+                                  mr="8px"
+                                  bg={currentColors.tableTagBg}
+                                  color={currentColors.tableTagText}>
+                                  <TagCloseButton
+                                      onClick={() =>
+                                          setLayoutState((layoutState) => {
+                                              return {
+                                                  ...layoutState,
+                                                  keyword: '',
+                                              };
+                                          })
+                                      }
+                                      mr="4px"
+                                  />
+                                  <TagLabel fontWeight="bold">
+                                      {layoutState.keyword}
+                                  </TagLabel>
+                              </Tag> */}
                 {/* {state?.filters?.length > 0 &&
-                                        state.filters.map((filter) => {
-                                            return (
-                                                <Tag
-                                                    key={filter.id}
-                                                    w="sm"
-                                                    h="sm"
-                                                    borderRadius="full"
-                                                    variant="solid"
-                                                    bg={
-                                                        currentColors.tableTagBg
-                                                    }
-                                                    color={
-                                                        currentColors.tableTagText
-                                                    }>
-                                                    <TagCloseButton
-                                                        onClick={() =>
-                                                            setFilter(
-                                                                filter.id,
-                                                                null
-                                                            )
-                                                        }
-                                                        pr="4px"
-                                                        pl="4px"
-                                                        mr="4px"
-                                                    />
-                                                    <TagLabel fontWeight="bold">
-                                                        {filter.id}:{' '}
-                                                        {filter.value}
-                                                    </TagLabel>
-                                                </Tag>
-                                            );
-                                        })} */}
+                                      state.filters.map((filter) => {
+                                          return (
+                                              <Tag
+                                                  key={filter.id}
+                                                  w="sm"
+                                                  h="sm"
+                                                  borderRadius="full"
+                                                  variant="solid"
+                                                  bg={
+                                                      currentColors.tableTagBg
+                                                  }
+                                                  color={
+                                                      currentColors.tableTagText
+                                                  }>
+                                                  <TagCloseButton
+                                                      onClick={() =>
+                                                          setFilter(
+                                                              filter.id,
+                                                              null
+                                                          )
+                                                      }
+                                                      pr="4px"
+                                                      pl="4px"
+                                                      mr="4px"
+                                                  />
+                                                  <TagLabel fontWeight="bold">
+                                                      {filter.id}:{' '}
+                                                      {filter.value}
+                                                  </TagLabel>
+                                              </Tag>
+                                          );
+                                      })} */}
               </Box>
               <Stack isInline spacing="15px" align="center" justify="center">
                 {showSearchOn.includes(deviceType) && (
                   <CanopyTableSearch
                     searchQuery={
-                      serverSideSearch
+                      !clientSideSearch
                         ? layoutState.keyword
                         : state.globalFilter
                     }
+                    //   globalProps={globalProps}
                     onSearch={onSearch}
                     isDisabled={!isDataExists}
                   ></CanopyTableSearch>
                 )}
                 {showColumnSelectorOn.includes(deviceType) && (
                   <ColumnSelector
+                    //    globalProps={globalProps}
                     allColumns={[...allColumns]}
                     visibleColumns={visibleColumns}
                     onApply={onApplyColumnSector}
                     isDisabled={!isDataExists}
-                  >
-                    {""}
-                  </ColumnSelector>
+                  ></ColumnSelector>
                 )}
                 {/* {showFilterOn.includes(deviceType) &&
-                                (isDataExists || dataLoad?.error) ? (
-                                    customTableFilter ? (
-                                        customTableFilter
-                                    ) : filterType == 'multi-level-filter' ? (
-                                        // <MultiLevelFilter
-                                        //     defaultSelection="trade_type"
-                                        //     {...props}
-                                        //     onApply={onApplyMultiLevelFilter}
-                                        //     filterApi={filterApi}
-                                        //     previousState={previousState}
-                                        //     setPreviousState={setPreviousState}
-                                        //     user_id={props.layoutState.user_id}
-                                        //     globalProps={
-                                        //         globalProps
-                                        //     }></MultiLevelFilter>
-                                    ) : (
-                                        <TableFilter
-                                            globalProps={globalProps}
-                                            filters={visibleColumns}
-                                            isDisabled={!isDataExists}>
-                                            {''}
-                                        </TableFilter>
-                                    )
-                                ) : null} */}
+                (isDataExists || dataLoad?.error) ? 
+                  customTableFilter ? 
+                    customTableFilter:null */}
 
                 {/* {showDownloadOn.includes(deviceType) &&
                   (downloadAllData || downloadCurrentData) && (
@@ -901,21 +971,17 @@ function CanopyTable(
                                   {column.isSorted ? (
                                     column.isSortedDesc ? (
                                       <Box
+                                        ml="6px"
                                         as={GrFormDown}
-                                        ml="4px"
                                         name="ActDrpdwn"
-                                        width={4}
-                                        height={4}
                                         color={currentColors.inputBorder}
                                       ></Box>
                                     ) : (
                                       <Box
-                                        ml="4px"
+                                        ml="6px"
                                         as={GrFormDown}
                                         name="ActDrpdwn"
                                         transform="rotate(180deg)"
-                                        width={4}
-                                        height={4}
                                         color={currentColors.inputBorder}
                                       ></Box>
                                     )
@@ -924,13 +990,16 @@ function CanopyTable(
                                   )}
                                 </span>
                               </Box>
-
                               {canResize && (
                                 <Box
                                   {...column.getResizerProps()}
                                   className={`resizer ${
                                     column.isResizing ? "isResizing" : ""
                                   }`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
                                 >
                                   <Box
                                     as={AiOutlineLine}
@@ -1044,6 +1113,7 @@ function CanopyTable(
                                     row.original.id
                                   )}`}
                                   dataKey="children"
+                                  //  globalProps={globalProps}
                                   setSubRows={(data: any) =>
                                     handleSubRows(data, row)
                                   }
@@ -1081,6 +1151,7 @@ function CanopyTable(
                   pageIndex: page,
                 }));
               }}
+              //   globalProps={globalProps}
             />
           )}
           {isDataExists && customTablePager}

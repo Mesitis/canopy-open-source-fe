@@ -211,6 +211,7 @@ const Template = (args: any) => (
     meta={{}}
     requiredQueryFields={[]}
     filterType={""}
+    clientSideSort={true}
     {...args}
   />
 );

@@ -137,8 +137,8 @@ function ColumnSelector({
     <>
       <IconButton
         aria-label="Format"
-        width="20px"
-        height="20px"
+        width="30px"
+        height="30px"
         ref={btnRef}
         onClick={onOpen}
         Icon={CgFormatJustify}
@@ -153,6 +153,7 @@ function ColumnSelector({
           backgroundColor: "transparent",
           outline: "none",
         }}
+        margin="0px"
         _active={{ border: "0px" }}
         {...props}
       />
@@ -189,11 +190,6 @@ function ColumnSelector({
               />
               <Flex direction="column">
                 <Flex p="5px">
-                  {/* <Image
-                                        src={logo}
-                                        width={'30px'}
-                                        height={'30px'}
-                                    /> */}
                   <Box
                     ml="15px"
                     color={currentColors.headingText}

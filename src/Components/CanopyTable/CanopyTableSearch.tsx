@@ -48,8 +48,6 @@ export default function CanopyTableSearch({
 
   return (
     <InputGroup
-      // onMouseEnter={() => setIsShown(true)}
-      // onMouseLeave={() => setIsShown(false)}
       color={currentColors.tableHeadingText}
       border="0px"
       borderRadius="40px"
@@ -64,7 +62,6 @@ export default function CanopyTableSearch({
             }
           : {}
       }
-      // width="20px"
       height="25px"
       {...props}
     >
@@ -106,8 +103,9 @@ export default function CanopyTableSearch({
         pointerEvents="none"
       >
         <IconButton
+          m={0}
           pb="4px"
-          width="20px"
+          width="30px"
           height="30px"
           Icon={GrSearch}
           aria-label="search"
