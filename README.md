@@ -32,7 +32,7 @@
     * Required :``` TRUE```
 ``` Object Specification ```
 ```
-    data: [];
+  data: [];
   loading: boolean;
   error: { message: string };
   meta: Record<string, unknown>;
@@ -46,7 +46,7 @@
 ```
   key: string;
   headerText?: string;
-   type: string;
+  type: string;
   otherKeys?: Array<string>;
   colSpan?: number;
   expandRow?: boolean;
