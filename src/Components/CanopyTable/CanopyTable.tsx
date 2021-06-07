@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import { Box, Flex, SlideFade, Stack, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  SlideFade,
+  Stack,
+  useDisclosure,
+  Button,
+} from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import cloneDeep from "lodash-es/cloneDeep";
 import React, { useEffect, useState } from "react";
@@ -65,6 +72,7 @@ export interface CanopyTableProps<TData, L>
   requiredQueryFields?: string[];
   filterType?: string;
   filterApi?: string;
+  primaryColor?: string;
 }
 
 interface CustomTableProps {
@@ -243,6 +251,7 @@ function CanopyTable(
     requiredQueryFields,
     filterType,
     filterApi,
+    primaryColor,
   } = props;
   const currentColors = useCurrentColors();
   const { isOpen } = useDisclosure();
@@ -344,14 +353,6 @@ function CanopyTable(
     return data;
   };
 
-  // useEffect(() => {
-  //   per_page
-  //     ? setLayoutState((layoutState) => {
-  //         return { ...layoutState, per_page: per_page, page: 1 };
-  //       })
-  //     : null;
-  // }, [per_page]);
-
   useEffect(() => {
     let data = [];
     if (dataKey && dataLoad?.data && dataLoad?.data[dataKey]) {
@@ -421,7 +422,7 @@ function CanopyTable(
         return _col;
       });
 
-      setVisibleColumns(_visibleColumns);
+      setVisibleColumns(_allColumns);
     } else {
       let _visibleColumns = _allColumns?.filter((column) => {
         return column.visible;
@@ -433,7 +434,7 @@ function CanopyTable(
           return _col;
         }
       });
-      setVisibleColumns(_visibleColumns);
+      setVisibleColumns(_allColumns);
     }
   }, [allColumns]);
 
@@ -458,41 +459,29 @@ function CanopyTable(
     headerGroups,
     prepareRow,
     page,
+    gotoPage,
     canPreviousPage,
     canNextPage,
     pageOptions,
     setPageSize,
     state,
+    previousPage,
+    nextPage,
     setColumnOrder,
     setGlobalFilter,
   } = useTable(
     {
       columns: visibleColumns,
-
       data,
-      // filterTypes,
       globalFilter,
       initialState: {
-        ...pageMeta,
         globalFilter: globalFilterMeta,
+        pageSize: per_page,
       },
       defaultColumn,
-      manualPagination: true,
+      manualPagination: false,
       manualSortBy: true,
       paginateExpandedRows: false,
-      pageCount: pageMeta?.pageCount,
-      useControlledState: (state) => {
-        return React.useMemo(() => {
-          const newState = {
-            ...state,
-            globalFilter: globalFilterMeta,
-          };
-          return {
-            ...newState,
-            ...pageMeta,
-          };
-        }, [state, pageMeta, globalFilterMeta]);
-      },
     },
     useGlobalFilter,
     useFilters,
@@ -545,7 +534,7 @@ function CanopyTable(
   }, [state?.sortBy]);
 
   useEffect(() => {
-    let columns = [...visibleColumns];
+    let columns = [...allColumns];
     let _allColumns: any = [];
     let index: number = -1;
     let updatedColumn = columns.map((_col) => {
@@ -619,63 +608,7 @@ function CanopyTable(
               pb="20px"
               height="30px"
             >
-              <Box width="100%">
-                {/* <Tag
-                                    size="sm"
-                                    borderRadius="full"
-                                    variant="solid"
-                                    mr="8px"
-                                    bg={currentColors.tableTagBg}
-                                    color={currentColors.tableTagText}>
-                                    <TagCloseButton
-                                        onClick={() =>
-                                            setLayoutState((layoutState) => {
-                                                return {
-                                                    ...layoutState,
-                                                    keyword: '',
-                                                };
-                                            })
-                                        }
-                                        mr="4px"
-                                    />
-                                    <TagLabel fontWeight="bold">
-                                        {layoutState.keyword}
-                                    </TagLabel>
-                                </Tag> */}
-                {/* {state?.filters?.length > 0 &&
-                                        state.filters.map((filter) => {
-                                            return (
-                                                <Tag
-                                                    key={filter.id}
-                                                    w="sm"
-                                                    h="sm"
-                                                    borderRadius="full"
-                                                    variant="solid"
-                                                    bg={
-                                                        currentColors.tableTagBg
-                                                    }
-                                                    color={
-                                                        currentColors.tableTagText
-                                                    }>
-                                                    <TagCloseButton
-                                                        onClick={() =>
-                                                            setFilter(
-                                                                filter.id,
-                                                                null
-                                                            )
-                                                        }
-                                                        pr="4px"
-                                                        pl="4px"
-                                                        mr="4px"
-                                                    />
-                                                    <TagLabel fontWeight="bold">
-                                                        {filter.id}:{' '}
-                                                        {filter.value}
-                                                    </TagLabel>
-                                                </Tag>
-                                            );
-                                        })} */}
-              </Box>
+              <Box width="100%"></Box>
               <Stack isInline spacing="15px" align="center" justify="center">
                 {showSearchOn.includes(deviceType) && (
                   <CanopyTableSearch
@@ -690,6 +623,7 @@ function CanopyTable(
                 )}
                 {showColumnSelectorOn.includes(deviceType) && (
                   <ColumnSelector
+                    primaryColor={primaryColor}
                     allColumns={[...allColumns]}
                     visibleColumns={visibleColumns}
                     onApply={onApplyColumnSector}
@@ -698,44 +632,6 @@ function CanopyTable(
                     {""}
                   </ColumnSelector>
                 )}
-                {/* {showFilterOn.includes(deviceType) &&
-                                (isDataExists || dataLoad?.error) ? (
-                                    customTableFilter ? (
-                                        customTableFilter
-                                    ) : filterType == 'multi-level-filter' ? (
-                                        // <MultiLevelFilter
-                                        //     defaultSelection="trade_type"
-                                        //     {...props}
-                                        //     onApply={onApplyMultiLevelFilter}
-                                        //     filterApi={filterApi}
-                                        //     previousState={previousState}
-                                        //     setPreviousState={setPreviousState}
-                                        //     user_id={props.layoutState.user_id}
-                                        //     globalProps={
-                                        //         globalProps
-                                        //     }></MultiLevelFilter>
-                                    ) : (
-                                        <TableFilter
-                                            globalProps={globalProps}
-                                            filters={visibleColumns}
-                                            isDisabled={!isDataExists}>
-                                            {''}
-                                        </TableFilter>
-                                    )
-                                ) : null} */}
-
-                {/* {showDownloadOn.includes(deviceType) &&
-                  (downloadAllData || downloadCurrentData) && (
-                    <CanopyTableDownloader
-                      globalProps={globalProps}
-                      isDisabled={!isDataExists}
-                      layoutState={layoutState}
-                      downloadAllData={downloadAllData}
-                      downloadCurrentData={downloadCurrentData}
-                      endpoint={meta?.processedEndpoint || ""}
-                      requiredQueryFields={requiredQueryFields}
-                    ></CanopyTableDownloader>
-                  )} */}
               </Stack>
             </Flex>
           </>
@@ -1069,18 +965,14 @@ function CanopyTable(
                 pageOptions,
                 setPageSize,
                 recordName,
-                ...pageMeta,
+                previousPage,
+                nextPage,
+                numRowsInCurrPage: per_page,
+                numTotalRows: data.length,
+                pageIndex: state?.pageIndex,
+                primaryColor: primaryColor,
               }}
-              gotoPage={(page) => {
-                window.scrollTo(0, 0);
-                setLayoutState((layoutState) => {
-                  return { ...layoutState, page };
-                });
-                setPageMeta((prev) => ({
-                  ...prev,
-                  pageIndex: page,
-                }));
-              }}
+              gotoPage={gotoPage}
             />
           )}
           {isDataExists && customTablePager}

@@ -1,8 +1,7 @@
 {
   "name": "canopy-components",
-  "version": "1.0.2",
+  "version": "1.7.0",
   "main": "build/index.js",
-  "module": "build/index.es.js",
   "files": [
     "build"
   ],

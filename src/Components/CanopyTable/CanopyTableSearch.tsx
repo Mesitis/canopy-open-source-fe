@@ -106,6 +106,7 @@ export default function CanopyTableSearch({
         pointerEvents="none"
       >
         <IconButton
+          Size={"16px"}
           pb="4px"
           width="20px"
           height="30px"

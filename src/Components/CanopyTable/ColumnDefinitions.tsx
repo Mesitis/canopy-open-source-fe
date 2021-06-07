@@ -532,7 +532,6 @@ const columnDef: ColumnDefinition<TableLayoutState> = {
   custom: ({
     column: {
       key,
-      actions,
       showOnSubTable = false,
       canReorder = true,
       canSort = false,
@@ -547,8 +546,7 @@ const columnDef: ColumnDefinition<TableLayoutState> = {
   }) => {
     return {
       Header: key,
-      accessor: "actions",
-      id: "actions",
+      accessor: key,
       align: "center",
       width: width,
       canReorder,
@@ -557,40 +555,13 @@ const columnDef: ColumnDefinition<TableLayoutState> = {
       customCell,
       Cell: ({ row, rows }) => {
         if (showOnSubTable || row.depth === 0) {
-          return customCell({ row, rows });
+          return customCell
+            ? customCell({ row, rows })
+            : "something went wrong";
         }
         return null;
       },
     };
-  },
-};
-
-const actionsDetails: Record<
-  string,
-  {
-    icon: string;
-    onAction: (
-      row: any,
-      path: string,
-      setLayoutState?: React.Dispatch<SetStateAction<TableLayoutState>>
-    ) => void;
-  }
-> = {
-  view_portfolio: {
-    icon: "NavPort",
-    onAction: (row, path, setLayoutState) => {
-      setLayoutState &&
-        setLayoutState((layoutState) => {
-          return {
-            ...layoutState,
-            user: {
-              id: row.original.id,
-              displayName: row.original.displayName,
-              username: row.original.username,
-            },
-          };
-        });
-    },
   },
 };
 

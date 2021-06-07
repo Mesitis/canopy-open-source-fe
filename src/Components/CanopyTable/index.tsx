@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { ChakraProvider } from "@chakra-ui/react";
+import React from "react";
 import theme from "../../styles/colors";
 import CanopyTable from "./CanopyTable";
 const CanopyTableWrapper = (props: any) => {

@@ -28,6 +28,9 @@ export interface CanopyTablePagerProps {
   numRowsInCurrPage: number;
   numTotalRows: number;
   recordName: string;
+  previousPage: any;
+  nextPage: any;
+  primaryColor?: any;
 }
 
 function CanopyTablePager({
@@ -39,6 +42,9 @@ function CanopyTablePager({
   numRowsInCurrPage,
   numTotalRows,
   recordName,
+  previousPage,
+  nextPage,
+  primaryColor,
 }: CanopyTablePagerProps) {
   const currentColors = useCurrentColors();
   return (
@@ -54,7 +60,7 @@ function CanopyTablePager({
       position="relative"
     >
       {numRowsInCurrPage > numTotalRows ? (
-        "login-password-session.showing-all-results"
+        ""
       ) : (
         <>
           <Text
@@ -68,7 +74,7 @@ function CanopyTablePager({
           >
             <Text>
               <Text as="span" fontWeight="bold">
-                {numRowsInCurrPage} of {numTotalRows}{" "}
+                {pageIndex + 1} of {pageOptions.length}{" "}
               </Text>
               {recordName} displayed
             </Text>
@@ -115,10 +121,12 @@ function CanopyTablePager({
                 position={{ sm: "absolute", xl: "initial" }}
                 bottom={{ sm: "4px", xl: "auto" }}
                 left={{ sm: "0", xl: "auto" }}
-                onClick={() => gotoPage(pageIndex - 1)}
+                onClick={() => previousPage()}
               />
               {canPreviousPage && (
                 <Button
+                  background="transparent"
+                  border="0"
                   name="previous-pager-button"
                   key={pageIndex}
                   mx="4px"
@@ -130,7 +138,7 @@ function CanopyTablePager({
                   width="25px"
                   height="25px"
                   size="xs"
-                  onClick={() => gotoPage(pageIndex)}
+                  onClick={() => previousPage()}
                 >
                   {pageIndex}
                 </Button>
@@ -145,9 +153,15 @@ function CanopyTablePager({
                   lineHeight="18px"
                   fontWeight="bold"
                   variant="ghost"
-                  backgroundColor={currentColors.highlightedButtonBg}
+                  backgroundColor={
+                    primaryColor
+                      ? primaryColor
+                      : currentColors.highlightedButtonBg
+                  }
                   _hover={{
-                    backgroundColor: currentColors.highlightedButtonBg,
+                    backgroundColor: primaryColor
+                      ? primaryColor
+                      : currentColors.highlightedButtonBg,
                   }}
                   _focus={{ outline: "none" }}
                   color={currentColors.white}
@@ -162,6 +176,8 @@ function CanopyTablePager({
 
               {canNextPage && (
                 <Button
+                  background="transparent"
+                  border="0"
                   name="next-pager-button"
                   key={pageIndex + 2}
                   mx="4px"
@@ -175,7 +191,7 @@ function CanopyTablePager({
                   size="xs"
                   _focus={{ outline: "none" }}
                   onClick={() => {
-                    gotoPage(pageIndex + 2);
+                    gotoPage(pageIndex + 1);
                   }}
                 >
                   {pageIndex + 2}
@@ -184,6 +200,8 @@ function CanopyTablePager({
 
               {!canPreviousPage && pageOptions?.length - 1 >= pageIndex + 3 && (
                 <Button
+                  background="transparent"
+                  border="0"
                   name="last-pager-button"
                   mx="4px"
                   fontSize="13px"
@@ -213,7 +231,7 @@ function CanopyTablePager({
                 height="13px"
                 size="xs"
                 _focus={{ outline: "none" }}
-                onClick={() => gotoPage(pageIndex + 2)}
+                onClick={() => nextPage()}
               />
             </Flex>
             <Flex alignItems="center">

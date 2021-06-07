@@ -184,39 +184,23 @@ const columns = [
   },
 ];
 const Template = (args: any) => (
-  <CanopyTable
-    recordName="rows"
-    dataKey="consolidated_holdings"
-    actionBar={true}
-    dataLoad={{ data: Mock }}
-    columns={columns}
-    layoutState={{
-      page: 1,
-      per_page: 20,
-      keyword: "",
-      output_format: "",
-    }}
-    setLayoutState={() => {}}
-    showSearchOn={["desktop", "tablet", "mobile"]}
-    showColumnSelectorOn={["desktop", "tablet", "mobile"]}
-    showFilterOn={["desktop", "tablet", "mobile"]}
-    showDownloadOn={["desktop", "tablet", "mobile"]}
-    per_page={30}
-    childRowsApi={null}
-    showPagination={true}
-    customTablePager={undefined}
-    customTableFilter={undefined}
-    serverSideSearch={false}
-    downloadCurrentData={true}
-    meta={{}}
-    requiredQueryFields={[]}
-    filterType={""}
-    {...args}
-  />
+  <>
+    <CanopyTable
+      primaryColor="#000000"
+      dataKey="consolidated_holdings"
+      dataLoad={{ data: Mock }}
+      setLayoutState={() => {}}
+      per_page={5}
+      showPagination={true}
+      serverSideSearch={false}
+      {...args}
+    />
+  </>
 );
 
 export const _CanopyTable = Template.bind({});
 //@ts-ignore
 _CanopyTable.args = {
   title: "Canopy Table",
+  columns: columns,
 };

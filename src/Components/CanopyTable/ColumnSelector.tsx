@@ -55,12 +55,14 @@ export interface ColumnSelectorProps extends ButtonProps {
   visibleColumns?: Array<TableColumn>;
   savedFormats?: Array<SavedFormat>;
   onApply?: OnApply;
+  primaryColor?: string;
 }
 function ColumnSelector({
   allColumns = [],
   visibleColumns = [],
   savedFormats = [],
   onApply,
+  primaryColor,
   ...props
 }: ColumnSelectorProps) {
   const logo = "/images/login_logo.png";
@@ -140,6 +142,7 @@ function ColumnSelector({
         width="20px"
         height="20px"
         ref={btnRef}
+        Size={"20px"}
         onClick={onOpen}
         Icon={CgFormatJustify}
         border="0"
@@ -288,7 +291,7 @@ function ColumnSelector({
                             fontSize="15px"
                             mb="13px"
                           >
-                            {_column.Header}
+                            {_column.headerText}
                           </Checkbox>
                         )}
                       </>
@@ -308,6 +311,7 @@ function ColumnSelector({
                 />
                 <Flex>
                   <CanopyButton
+                    primaryColor={primaryColor}
                     width="154px"
                     height="35px"
                     fontSize="13px"
@@ -318,6 +322,7 @@ function ColumnSelector({
                     Reset
                   </CanopyButton>
                   <CanopyButton
+                    primaryColor={primaryColor}
                     width="154px"
                     height="35px"
                     fontSize="13px"

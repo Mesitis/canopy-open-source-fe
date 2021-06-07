@@ -20,6 +20,7 @@ import React from "react";
 export type IconButtonProps = ButtonProps & {
   Icon: any;
   "aria-label": string;
+  Size?: any;
 };
 
 const IconButton = React.forwardRef(function ({
@@ -28,6 +29,7 @@ const IconButton = React.forwardRef(function ({
   height = "24px",
   minW = width,
   padding = "0px",
+  Size,
   ...props
 }: IconButtonProps) {
   return (
@@ -46,7 +48,7 @@ const IconButton = React.forwardRef(function ({
       _active={{ border: "0px" }}
       {...props}
     >
-      <Icon width={width} height={height} />
+      <Icon fontSize={Size} width={width} height={height} />
     </Button>
   );
 });
