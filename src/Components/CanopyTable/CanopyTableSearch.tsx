@@ -29,11 +29,13 @@ interface PropTypes extends InputGroupProps {
   searchQuery: string;
   onSearch: (searchKeyword: string) => void;
   isDisabled: boolean;
+  globalProps?: any;
 }
 export default function CanopyTableSearch({
   searchQuery: sq,
   onSearch,
   isDisabled,
+  globalProps,
   ...props
 }: PropTypes) {
   const currentColors = useCurrentColors();

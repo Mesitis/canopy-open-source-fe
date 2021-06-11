@@ -81,6 +81,7 @@ type ColumnDefinition<S> = Record<
     layoutState?: S;
     currentColors?: any;
     columns?: PropTableColumn[];
+    globalProps?: any;
   }) => TableColumn
 >;
 

@@ -28,3 +28,37 @@ export const clientSort = (property: any, order: boolean | undefined) => {
     }
   };
 };
+export const getKeyByValue = (object: Record<any, any>, value: string) => {
+  let result: any = Object.keys(object).find((key) => object[key] === value);
+  return result?.toString();
+};
+export const getBlankOptions = (filter: Record<string, any>) => {
+  const _response: Record<string, any> = {};
+  filter &&
+    Object.keys(filter).map((_key) => {
+      if (
+        _key !== "parent_user_id" &&
+        _key !== "user_id" &&
+        _key !== "child_user_id" &&
+        _key !== "ccy_account_id"
+      ) {
+        _response[_key] = [];
+      }
+    });
+  return _response;
+};
+export const getFilterValueForSelectBox = (filter: Array<any>) => {
+  const _filter: Record<string, Array<string>> = getBlankOptions(filter[0]);
+  filter.map((_data: Record<string, any>) => {
+    Object.keys(_filter).map((_key) => {
+      if (_key === "trade_types") {
+        _data[_key].map((_trade: string) => {
+          !_filter[_key].includes(_trade) && _filter[_key].push(_trade);
+        });
+      } else {
+        !_filter[_key].includes(_data[_key]) && _filter[_key].push(_data[_key]);
+      }
+    });
+  });
+  return _filter;
+};

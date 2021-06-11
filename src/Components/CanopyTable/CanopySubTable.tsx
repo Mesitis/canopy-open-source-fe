@@ -24,6 +24,7 @@ export interface CanopySubTableProps {
   api: string;
   setSubRows: React.Dispatch<React.SetStateAction<Array<any>>>;
   subRows: Array<any> | undefined;
+  globalProps?: any;
 }
 
 function CanopySubTable({
@@ -31,6 +32,7 @@ function CanopySubTable({
   api,
   setSubRows,
   subRows,
+  globalProps,
 }: CanopySubTableProps) {
   const currentColors = useCurrentColors();
   const [data, setData] = useState<Array<any> | null>(null);

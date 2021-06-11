@@ -55,12 +55,14 @@ export interface ColumnSelectorProps extends ButtonProps {
   visibleColumns?: Array<TableColumn>;
   savedFormats?: Array<SavedFormat>;
   onApply?: OnApply;
+  globalProps?: any;
 }
 function ColumnSelector({
   allColumns = [],
   visibleColumns = [],
   savedFormats = [],
   onApply,
+  globalProps,
   ...props
 }: ColumnSelectorProps) {
   const logo = "/images/login_logo.png";

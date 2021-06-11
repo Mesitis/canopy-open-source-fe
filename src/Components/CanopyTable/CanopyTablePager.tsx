@@ -28,6 +28,7 @@ export interface CanopyTablePagerProps {
   numRowsInCurrPage: number;
   numTotalRows: number;
   recordName: string;
+  globalProps?: any;
 }
 
 function CanopyTablePager({
@@ -39,6 +40,7 @@ function CanopyTablePager({
   numRowsInCurrPage,
   numTotalRows,
   recordName,
+  globalProps,
 }: CanopyTablePagerProps) {
   const currentColors = useCurrentColors();
   return (

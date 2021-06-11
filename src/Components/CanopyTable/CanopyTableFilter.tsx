@@ -48,6 +48,7 @@ export interface CanopyTableFilterProps extends ButtonProps {
   filters?: TableColumn[];
   savedFilters?: Array<SavedFilter>;
   onApply?: OnApply;
+  globalProps?: any;
 }
 const logo = "/images/login_logo.png";
 const FilterInput = ({ onChange }: { onChange: (args: string) => void }) => {
@@ -95,6 +96,7 @@ function TableFilter({
   filters = [],
   savedFilters = [],
   onApply,
+  globalProps,
   ...props
 }: CanopyTableFilterProps) {
   const { 1: setSelectedSavedFilter } = useState<SavedFilter | null>();
@@ -225,36 +227,6 @@ function TableFilter({
               my="15px"
             />
           </Flex>
-
-          {/* <Flex
-                        direction="column"
-                        justify="space-between"
-                        flexGrow={1}>
-                        <Flex flexGrow={1} direction="column">
-                            {filters.map((column) => {
-                                return (
-                                    <Flex
-                                        justify="space-between"
-                                        mb="22.5px"
-                                        key={column.accessor}>
-                                        <Flex
-                                            color={currentColors.headingText}
-                                            fontSize="15px">
-                                            {t(column.headerText)}
-                                        </Flex>
-                                        <Flex>
-                                            <FilterInput
-                                                onChange={(value) =>
-                                                    setSelectedFilters({
-                                                        ...selectedFilters,
-                                                        [column.accessor]: value,
-                                                    })
-                                                }></FilterInput>
-                                        </Flex>
-                                    </Flex>
-                                );
-                            })}
-                        </Flex> */}
           <Flex
             flexGrow={1}
             backgroundColor={currentColors.inputBg}
@@ -309,7 +281,6 @@ function TableFilter({
               }
             ></CanopyInput>
           </Flex>
-
           <Flex>
             <Flex direction="column" width="full">
               <Divider
